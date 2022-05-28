@@ -1,14 +1,16 @@
 import {addPouchPlugin, createRxDatabase, getRxStoragePouch} from "rxdb";
 import * as PouchHttpPlugin from 'pouchdb-adapter-http';
 //import { RxDBDevModePlugin } from 'rxdb/plugins/dev-mode';
-import pouchdb_adapter_memory from "pouchdb-adapter-memory";
+import pouchdb_adapter_memory from 'pouchdb-adapter-memory';
 
 
 //addRxPlugin(RxDBDevModePlugin);
 addPouchPlugin(PouchHttpPlugin);
 addPouchPlugin(pouchdb_adapter_memory);
 
-export async function _create() {
+let dbPromise: any = null
+
+async function _create() {
     const db = await createRxDatabase({
         name: 'clientdb',
         storage: getRxStoragePouch('memory'),
@@ -36,14 +38,19 @@ export async function _create() {
         }
     });
 
-    /*const repState = db.chats.syncCouchDB({
+    const repState = await db.chats.syncCouchDB({
         remote: 'http://localhost:5002/chatdb/server-db',
         waitForLeadership: false,
         options: {
             live: true,
             retry: true,
         },
-    });*/
+    });
 
     return db;
+}
+
+export async function getDb() {
+    if (!dbPromise) dbPromise = await _create()
+    return dbPromise
 }

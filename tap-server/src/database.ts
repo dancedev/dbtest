@@ -14,18 +14,20 @@ addPouchPlugin(LeveldownAdapter)
 
 export class Database {
 
+    private static db: RxDatabase;
+
     static async createDB(): Promise<RxDatabase> {
-        const db: RxDatabase = await createRxDatabase({
+        this.db = await createRxDatabase({
             name: './data/server-db',
             storage: getRxStoragePouch(leveldown),
             ignoreDuplicate: true,
         });
 
-        await db.waitForLeadership();
+        await this.db.waitForLeadership();
         console.log('isLeader now');
 
         try {
-            await db.addCollections({
+            await this.db.addCollections({
                 chats: {
                     schema: {
                         title: 'chat data',
@@ -50,6 +52,10 @@ export class Database {
         }
 
         console.log('server-db initialized.');
-        return db;
+        return this.db;
+    }
+
+    static async getDb(): Promise<RxDatabase> {
+        return this.db;
     }
 }

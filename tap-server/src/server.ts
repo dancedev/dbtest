@@ -15,10 +15,6 @@ async function initialize() {
 
         mainApp.use("/chatdb", app);
 
-        db.chats.$.subscribe(data => {
-            console.log('server is speaking: ', data);
-        })
-
     }).catch(() => console.log('error'));
 
 
@@ -29,6 +25,14 @@ async function initialize() {
 
 
     server = mainApp.listen(5002, () => console.log(`Server listening on port 5002`));
+
+    await Database.getDb().then(db => {
+        console.log('subscribing...')
+        db.chats.$.subscribe((data:any) => {
+        console.log('server is speaking: ', data);
+    });
+        db.$.subscribe(event => console.log('event: ', event));
+    });
 }
 
 initialize();

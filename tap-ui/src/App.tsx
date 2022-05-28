@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 import {Button, Stack, TextField} from "@mui/material";
-import {_create} from "./Database";
+import {getDb} from "./Database";
 
 interface IProps {
 }
@@ -13,45 +13,46 @@ interface IState {
 
 class App extends Component<IProps, IState> {
 
-    public onSend = () => {
-        this.db.then(async database => {
-            await database.chats.insert({
-                message_id: Date.now().toString(),
-                message: this.state.message
-            });
-
-            console.log('m: ', this.state.message)
-        });
-    }
-
-    public onFetch = () => {
-        this.db.then(async db => {
-            this.setState({chatData: await db.chats.find().exec()});
-
-            console.log('fetched', this.state.chatData);
-        });
-    }
-
-    private db = _create();
-
     constructor(props: IProps) {
         super(props);
 
         this.state = {
-            chatData: null,
+            chatData: [],
             message: ''
         }
     }
 
     async componentDidMount() {
-        /*this.db.then(async db => {
-            this.setState({chatData: await db.chats.find().exec()});
-            console.log('docs', this.state.chatData);
-        });*/
+        await this.onFetch();
+    }
+
+    public onSend = async() => {
+        await getDb().then(
+            (database:any) => database.chats.upsert({
+                message_id: Date.now().toString(),
+                message: this.state.message
+            })
+        );
+
+        await this.onFetch();
+
+        console.log('m: ', this.state.message)
+    }
+
+    public onFetch = async() => {
+        await getDb().then(
+            async (database:any) => {
+                database.chats.find().exec().then(
+                    (chatData:any) => this.setState({chatData}, () => {
+                        console.log('fetched', chatData);
+                    })
+                );
+            }
+        );
     }
 
     render() {
-
+        const {chatData} = this.state
         return (
             <div className="App">
                 <Stack spacing={2}>
@@ -59,8 +60,8 @@ class App extends Component<IProps, IState> {
                                onChange={e => this.setState({message: e.target.value})}/>
                     <Button variant="outlined" onClick={this.onSend}>Send message</Button>
                     <Button variant="outlined" onClick={this.onFetch}>Fetch data</Button>
-                    {this.state.chatData?.map((e:any) => {
-                        return (<div>{e.message}</div>);
+                    {chatData?.map((e:any) => {
+                        return (<div id={e.message_id}>{e.message}</div>);
                     })}
                 </Stack>
             </div>
