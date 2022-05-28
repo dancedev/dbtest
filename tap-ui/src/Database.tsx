@@ -47,6 +47,8 @@ async function _create() {
         },
     });
 
+    console.log('synced? ', repState)
+
     return db;
 }
 

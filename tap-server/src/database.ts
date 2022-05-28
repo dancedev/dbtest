@@ -52,6 +52,8 @@ export class Database {
         }
 
         console.log('server-db initialized.');
+
+        this.db.chats.upsert({message_id: 'init', message: 'bla bla bla'});
         return this.db;
     }
 

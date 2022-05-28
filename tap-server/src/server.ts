@@ -6,8 +6,7 @@ let server: any;
 async function initialize() {
     const mainApp = express();
 
-
-    Database.createDB().then(async (db) => {
+    await Database.createDB().then(async (db) => {
         const {app} = await db.server({
             startServer: false,
             cors: true,
@@ -26,11 +25,12 @@ async function initialize() {
 
     server = mainApp.listen(5002, () => console.log(`Server listening on port 5002`));
 
-    await Database.getDb().then(db => {
+    await Database.getDb().then(async db => {
         console.log('subscribing...')
-        db.chats.$.subscribe((data:any) => {
-        console.log('server is speaking: ', data);
-    });
+        //db.chats.$.subscribe((data:any) => {
+        db.chats.insert$.subscribe((data: any) => {
+            console.log('server is speaking: ', data);
+        });
         db.$.subscribe(event => console.log('event: ', event));
     });
 }
