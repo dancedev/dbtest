@@ -27,9 +27,8 @@ async function initialize() {
 
     await Database.getDb().then(async db => {
         console.log('subscribing...')
-        //db.chats.$.subscribe((data:any) => {
-        db.chats.insert$.subscribe((data: any) => {
-            console.log('server is speaking: ', data);
+        db.$.subscribe((changeEvent: any) => {
+            console.log('server is speaking: ', changeEvent);
         });
         db.$.subscribe(event => console.log('event: ', event));
     });

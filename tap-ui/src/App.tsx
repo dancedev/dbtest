@@ -40,8 +40,7 @@ class App extends Component<IProps, IState> {
     }
 
     public onFetch = async() => {
-        await getDb().then(
-            async (database:any) => {
+        await getDb().then(async (database:any) => {
                 database.chats.find().exec().then(
                     (chatData:any) => this.setState({chatData}, () => {
                         console.log('fetched', chatData);

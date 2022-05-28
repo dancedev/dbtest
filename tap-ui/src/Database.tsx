@@ -39,8 +39,7 @@ async function _create() {
     });
 
     const repState = await db.chats.syncCouchDB({
-        remote: 'http://localhost:5002/chatdb/server-db',
-        waitForLeadership: false,
+        remote: 'http://localhost:5002/chatdb/chats',
         options: {
             live: true,
             retry: true,
