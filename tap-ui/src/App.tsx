@@ -24,14 +24,17 @@ class App extends Component<IProps, IState> {
 
     async componentDidMount() {
         await this.onFetch();
+        await this.sub();
     }
 
-    public onSend = async() => {
+    public onSend = async () => {
         await getDb().then(
-            (database:any) => database.chats.upsert({
-                message_id: Date.now().toString(),
-                message: this.state.message
-            })
+            (database: any) => {
+                database.chats.upsert({
+                    message_id: this.state.message,
+                    message: this.state.message
+                });
+            }
         );
 
         await this.onFetch();
@@ -39,10 +42,10 @@ class App extends Component<IProps, IState> {
         console.log('m: ', this.state.message)
     }
 
-    public onFetch = async() => {
-        await getDb().then(async (database:any) => {
+    public onFetch = async () => {
+        await getDb().then(async (database: any) => {
                 database.chats.find().exec().then(
-                    (chatData:any) => this.setState({chatData}, () => {
+                    (chatData: any) => this.setState({chatData}, () => {
                         console.log('fetched', chatData);
                     })
                 );
@@ -59,12 +62,21 @@ class App extends Component<IProps, IState> {
                                onChange={e => this.setState({message: e.target.value})}/>
                     <Button variant="outlined" onClick={this.onSend}>Send message</Button>
                     <Button variant="outlined" onClick={this.onFetch}>Fetch data</Button>
-                    {chatData?.map((e:any) => {
+                    {chatData?.map((e: any) => {
                         return (<div id={e.message_id}>{e.message}</div>);
                     })}
                 </Stack>
             </div>
         )
     }
+
+    private async sub() {
+        await getDb().then(
+            (database: any) => database.chats.$.subscribe((changeEvent: any) => {
+                console.log('ce: ', changeEvent);
+                this.onFetch();
+            }));
+    }
 }
+
 export default App;

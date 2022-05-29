@@ -1,5 +1,7 @@
 import express from "express";
-import { Database } from "./database";
+import {Database} from "./database";
+import {v4 as uuidv4} from 'uuid';
+
 
 let server: any;
 
@@ -25,13 +27,35 @@ async function initialize() {
 
     server = mainApp.listen(5002, () => console.log(`Server listening on port 5002`));
 
+
+    return server;
+}
+
+
+async function sub() {
+
+    console.log('lets start');
+    let lastobj: any;
+
     await Database.getDb().then(async db => {
         console.log('subscribing...')
-        db.$.subscribe((changeEvent: any) => {
-            console.log('server is speaking: ', changeEvent);
+        db.chats.$.subscribe((changeEvent: any) => {
+            console.log('client is speaking: ', changeEvent);
+
+            if (!lastobj || (lastobj && lastobj.message_id !== changeEvent.documentData.message_id))
+            {
+                lastobj = {message_id: uuidv4(), message: 'got message ' + changeEvent.documentData.message_id};
+                db.chats.upsert(lastobj);
+            }
+
         });
-        db.$.subscribe(event => console.log('event: ', event));
     });
 }
 
-initialize();
+initialize().then(() => {
+
+    console.log('continue');
+    sub();
+});
+
+

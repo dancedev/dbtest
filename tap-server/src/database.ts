@@ -18,7 +18,7 @@ export class Database {
 
     static async createDB(): Promise<RxDatabase> {
         this.db = await createRxDatabase({
-            name: './data/server-db',
+            name: 'server-db',
             storage: getRxStoragePouch(leveldown),
             ignoreDuplicate: true,
         });
@@ -54,6 +54,7 @@ export class Database {
         console.log('server-db initialized.');
 
         this.db.chats.upsert({message_id: 'init', message: 'bla bla bla'});
+
         return this.db;
     }
 
