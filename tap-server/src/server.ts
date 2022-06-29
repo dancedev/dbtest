@@ -2,7 +2,6 @@ import express from "express";
 import {Database} from "./database";
 import {v4 as uuidv4} from 'uuid';
 
-
 let server: any;
 
 async function initialize() {
@@ -10,7 +9,8 @@ async function initialize() {
 
     await Database.createDB().then(async (db) => {
         const {app} = await db.server({
-            startServer: false,
+            path: 'data',
+            port: 5002,
             cors: true,
         });
 
@@ -31,10 +31,8 @@ async function initialize() {
     return server;
 }
 
-
 async function sub() {
 
-    console.log('lets start');
     let lastobj: any;
 
     await Database.getDb().then(async db => {
@@ -54,7 +52,6 @@ async function sub() {
 
 initialize().then(() => {
 
-    console.log('continue');
     sub();
 });
 

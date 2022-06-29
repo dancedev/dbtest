@@ -1,13 +1,8 @@
-import {addPouchPlugin, createRxDatabase, getRxStoragePouch} from "rxdb";
-import * as PouchHttpPlugin from 'pouchdb-adapter-http';
-import pouchdb_adapter_memory from 'pouchdb-adapter-memory';
+import pouchdb_adapter_memory from "pouchdb-adapter-memory";
+import {addPouchPlugin, getRxStoragePouch} from "rxdb/dist/types/plugins/pouchdb";
+import {createRxDatabase} from "rxdb";
 
-import { addRxPlugin } from 'rxdb';
-import { RxDBReplicationCouchDBPlugin } from 'rxdb/plugins/replication-couchdb';
-
-addPouchPlugin(PouchHttpPlugin);
 addPouchPlugin(pouchdb_adapter_memory);
-addRxPlugin(RxDBReplicationCouchDBPlugin);
 
 let dbPromise: any = null
 
