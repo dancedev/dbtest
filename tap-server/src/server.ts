@@ -8,51 +8,37 @@ async function initialize() {
     const mainApp = express();
 
     await Database.createDB().then(async (db) => {
-        const {app} = await db.server({
+        const {app, server} = await db.server({
             path: 'data',
             port: 5002,
             cors: true,
+            startServer: false,
         });
 
         mainApp.use("/chatdb", app);
 
-    }).catch(() => console.log('error'));
-
-
-    mainApp.use("/import", (req, res) => {
-
-        res.send("importing...")
-    });
-
+    }).catch((err) => console.log('error creating server app: ', err));
 
     server = mainApp.listen(5002, () => console.log(`Server listening on port 5002`));
-
 
     return server;
 }
 
-async function sub() {
+initialize().then(async () => {
 
-    let lastobj: any;
+    let lastObj: any;
 
     await Database.getDb().then(async db => {
-        console.log('subscribing...')
+        console.log('subscribing...');
         db.chats.$.subscribe((changeEvent: any) => {
             console.log('client is speaking: ', changeEvent);
 
-            if (!lastobj || (lastobj && lastobj.message_id !== changeEvent.documentData.message_id))
-            {
-                lastobj = {message_id: uuidv4(), message: 'got message ' + changeEvent.documentData.message_id};
-                db.chats.upsert(lastobj);
+            if (!lastObj || (lastObj && lastObj.message_id !== changeEvent.documentData.message_id)) {
+                lastObj = {message_id: uuidv4(), message: 'got message ' + changeEvent.documentData.message_id};
+                db.chats.upsert(lastObj);
             }
-
         });
     });
-}
-
-initialize().then(() => {
-
-    sub();
 });
 
 
