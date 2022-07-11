@@ -1,13 +1,15 @@
-import {addPouchPlugin, createRxDatabase, getRxStoragePouch} from "rxdb";
-import * as PouchHttpPlugin from 'pouchdb-adapter-http';
-import pouchdb_adapter_memory from 'pouchdb-adapter-memory';
-
-import { addRxPlugin } from 'rxdb';
+import pouchdb_adapter_memory from "pouchdb-adapter-memory";
+import {addRxPlugin, createRxDatabase} from "rxdb";
+import {addPouchPlugin, getRxStoragePouch} from "rxdb/plugins/pouchdb";
 import { RxDBReplicationCouchDBPlugin } from 'rxdb/plugins/replication-couchdb';
+import { RxDBLeaderElectionPlugin } from 'rxdb/plugins/leader-election';
+import * as PouchHttpPlugin from 'pouchdb-adapter-http';
 
-addPouchPlugin(PouchHttpPlugin);
 addPouchPlugin(pouchdb_adapter_memory);
+addPouchPlugin(PouchHttpPlugin);
 addRxPlugin(RxDBReplicationCouchDBPlugin);
+addRxPlugin(RxDBLeaderElectionPlugin);
+
 
 let dbPromise: any = null
 
@@ -56,3 +58,4 @@ export async function getDb() {
     if (!dbPromise) dbPromise = await _create()
     return dbPromise
 }
+

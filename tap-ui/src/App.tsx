@@ -62,7 +62,7 @@ class App extends Component<IProps, IState> {
                                onChange={e => this.setState({message: e.target.value})}/>
                     <Button variant="outlined" onClick={this.onSend}>Send message</Button>
                     <Button variant="outlined" onClick={this.onFetch}>Fetch data</Button>
-                    {chatData?.map((e: any) => {
+                    {chatData.map((e: any) => {
                         return (<div id={e.message_id}>{e.message}</div>);
                     })}
                 </Stack>
