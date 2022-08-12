@@ -1,6 +1,7 @@
 import express from "express";
 import {Database} from "./database";
 import {v4 as uuidv4} from 'uuid';
+import {RoundService} from "./services/round.service";
 
 let server: any;
 
@@ -31,7 +32,7 @@ initialize().then(async () => {
     await Database.getDb().then(async db => {
         console.log('subscribing...');
         db.chats.$.subscribe((changeEvent: any) => {
-            console.log('client is speaking: ', changeEvent);
+            console.log('client is speaking: ', changeEvent.documentData.message);
 
             if (!lastObj || (lastObj && lastObj.message_id !== changeEvent.documentData.message_id)) {
                 lastObj = {message_id: uuidv4(), message: 'got message ' + changeEvent.documentData.message_id};
@@ -39,6 +40,12 @@ initialize().then(async () => {
             }
         });
     });
+
+
+    console.log('start wf')
+    //const rs = new RoundService();
+    //await rs.createWorkflow();
+    //rs.startWorkflow();
 });
 
 

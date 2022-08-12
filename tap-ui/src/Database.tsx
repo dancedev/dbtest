@@ -49,7 +49,12 @@ async function _create() {
         },
     });
 
-    console.log('synced? ', repState)
+    console.log('synced? ', repState);
+    repState.active$.subscribe(value => console.log('sync active ', value));
+    repState.alive$.subscribe(value => console.log('sync alive ', value));
+    repState.change$.subscribe(value => console.log('sync change ', value));
+    repState.denied$.subscribe(value => console.log('sync denied ', value));
+    repState.error$.subscribe(value => console.log('sync error ', value));
 
     return db;
 }
