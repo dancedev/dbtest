@@ -8,13 +8,15 @@ let server: any;
 async function initialize() {
     const mainApp = express();
 
+    console.log('create database');
     await Database.createDB().then(async (db) => {
-        const {app, server} = await db.server({
+        const {app} = await db.server({
             path: 'data',
             port: 5002,
             cors: true,
             startServer: false,
         });
+
 
         mainApp.use("/chatdb", app);
 
@@ -27,6 +29,7 @@ async function initialize() {
 
 initialize().then(async () => {
 
+    console.log('get database')
     let lastObj: any;
 
     await Database.getDb().then(async db => {
@@ -36,6 +39,7 @@ initialize().then(async () => {
 
             if (!lastObj || (lastObj && lastObj.message_id !== changeEvent.documentData.message_id)) {
                 lastObj = {message_id: uuidv4(), message: 'got message ' + changeEvent.documentData.message_id};
+                console.log('insert reply to database');
                 db.chats.upsert(lastObj);
             }
         });
@@ -43,9 +47,9 @@ initialize().then(async () => {
 
 
     console.log('start wf')
-    //const rs = new RoundService();
-    //await rs.createWorkflow();
-    //rs.startWorkflow();
+    const rs = new RoundService();
+    await rs.createWorkflow();
+    rs.startWorkflow();
 });
 
 

@@ -31,7 +31,8 @@ async function _create() {
                 properties: {
                     message_id: {
                         type: 'string',
-                        final: true
+                        final: true,
+                        maxLength: 255,
                     },
                     message: {
                         type: 'string',

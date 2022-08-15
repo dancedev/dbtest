@@ -4,14 +4,25 @@ import {addPouchPlugin, getRxStoragePouch} from "rxdb/plugins/pouchdb";
 import { RxDBServerPlugin } from 'rxdb/plugins/server';
 import leveldown from 'leveldown';
 
+
 addPouchPlugin(pouchdb_adapter_leveldb); // leveldown adapters need the leveldb plugin to work
 addRxPlugin(RxDBServerPlugin);
+
+import { RxDBDevModePlugin } from 'rxdb/plugins/dev-mode';
+addRxPlugin(RxDBDevModePlugin);
+
+
 
 export class Database {
 
     private static db: RxDatabase;
 
     static async createDB(): Promise<RxDatabase> {
+
+        /*await import('rxdb/plugins/dev-mode').then(
+            module => addRxPlugin(module as any)
+        );*/
+
         this.db = await createRxDatabase({
             name: 'data/server-db',
             storage: getRxStoragePouch(leveldown),
@@ -30,7 +41,8 @@ export class Database {
                         properties: {
                             message_id: {
                                 type: 'string',
-                                final: true
+                                final: true,
+                                maxLength: 255,
                             },
                             message: {
                                 type: 'string',
