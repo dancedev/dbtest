@@ -1,20 +1,22 @@
-import {addPouchPlugin, createRxDatabase, getRxStoragePouch} from "rxdb";
-import * as PouchHttpPlugin from 'pouchdb-adapter-http';
-import pouchdb_adapter_memory from 'pouchdb-adapter-memory';
-
+import {createRxDatabase, } from "rxdb";
+import { getRxStoragePouch, addPouchPlugin } from 'rxdb/plugins/pouchdb';
 import { addRxPlugin } from 'rxdb';
 import { RxDBReplicationCouchDBPlugin } from 'rxdb/plugins/replication-couchdb';
+import pouchdb_adapter_http from "pouchdb-adapter-http";
+import pouchdb_adapter_idb from "pouchdb-adapter-idb";
+import { RxDBLeaderElectionPlugin } from 'rxdb/plugins/leader-election';
 
-addPouchPlugin(PouchHttpPlugin);
-addPouchPlugin(pouchdb_adapter_memory);
+addPouchPlugin(pouchdb_adapter_http);
 addRxPlugin(RxDBReplicationCouchDBPlugin);
+addPouchPlugin(pouchdb_adapter_idb);
+addRxPlugin(RxDBLeaderElectionPlugin)
 
 let dbPromise: any = null
 
 async function _create() {
     const db = await createRxDatabase({
         name: 'clientdb',
-        storage: getRxStoragePouch('memory'),
+        storage: getRxStoragePouch('idb'),
         ignoreDuplicate: true,
     });
 
@@ -29,7 +31,8 @@ async function _create() {
                 properties: {
                     message_id: {
                         type: 'string',
-                        final: true
+                        final: true,
+                        maxLength: 255,
                     },
                     message: {
                         type: 'string',
@@ -41,13 +44,23 @@ async function _create() {
 
     const repState = db.chats.syncCouchDB({
         remote: 'http://localhost:5002/chatdb/chats',
-        options: {
+        waitForLeadership: true,              // (optional) [default=true] to save performance, the sync starts on leader-instance only
+        direction: {                          // direction (optional) to specify sync-directions
+            pull: true, // default=true
+            push: true  // default=true
+        },
+        options: {                             // sync-options (optional) from https://pouchdb.com/api.html#replication
             live: true,
-            retry: true,
+            retry: true
         },
     });
 
-    console.log('synced? ', repState)
+    console.log('synced? ', repState);
+    repState.active$.subscribe(value => console.log('sync active ', value));
+    repState.alive$.subscribe(value => console.log('sync alive ', value));
+    repState.change$.subscribe(value => console.log('sync change ', value));
+    repState.denied$.subscribe(value => console.log('sync denied ', value));
+    repState.error$.subscribe(value => console.log('sync error ', value));
 
     return db;
 }

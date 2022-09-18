@@ -9,9 +9,11 @@ async function initialize() {
     const mainApp = express();
 
     await Database.createDB().then(async (db) => {
-        const {app} = await db.server({
-            startServer: false,
+        const {app} = await db.serverCouchDB({
+            path: 'data',
             cors: true,
+            port: 5002,
+            startServer: false,
         });
 
         mainApp.use("/chatdb", app);
