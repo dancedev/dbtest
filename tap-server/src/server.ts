@@ -2,6 +2,7 @@ import express from "express";
 import {Database} from "./database";
 import {v4 as uuidv4} from 'uuid';
 import {RoundService} from "./services/round.service";
+import {TransitionId} from "./enums/transition.id.enum";
 
 let server: any;
 
@@ -27,7 +28,6 @@ async function initialize() {
         res.send("importing...")
     });
 
-
     server = mainApp.listen(5002, () => console.log(`Server listening on port 5002`));
 
     return server;
@@ -37,6 +37,11 @@ initialize().then(async () => {
 
     console.log('get database')
     let lastObj: any;
+
+    console.log('start wf')
+    const rs = new RoundService();
+    await rs.createWorkflow();
+    rs.startWorkflow();
 
     await Database.getDb().then(async db => {
         console.log('subscribing...');
@@ -48,14 +53,19 @@ initialize().then(async () => {
                 console.log('insert reply to database');
                 db.chats.upsert(lastObj);
             }
+
+            console.log('cmp ', changeEvent.documentData.message)
+            if (changeEvent.documentData.message === 'START') {
+                console.log('trigger START')
+                rs.stateMachine.trigger(TransitionId.START);
+            }
+            if (changeEvent.documentData.message === 'CREATE') {
+                console.log('trigger CREATE')
+                rs.stateMachine.trigger(TransitionId.CREATE);
+            }
         });
     });
 
-
-    console.log('start wf')
-    const rs = new RoundService();
-    await rs.createWorkflow();
-    rs.startWorkflow();
 });
 
 

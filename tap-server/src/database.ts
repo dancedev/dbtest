@@ -1,17 +1,14 @@
 import {addRxPlugin, createRxDatabase, RxDatabase,} from 'rxdb'
-import pouchdb_adapter_leveldb from "pouchdb-adapter-leveldb";
 import {addPouchPlugin, getRxStoragePouch} from "rxdb/plugins/pouchdb";
+import pouchdb_adapter_leveldb from "pouchdb-adapter-leveldb";
+import { RxDBServerCouchDBPlugin } from 'rxdb/plugins/server-couchdb';
 import leveldown from 'leveldown';
 
-
 addPouchPlugin(pouchdb_adapter_leveldb); // leveldown adapters need the leveldb plugin to work
-
-import { RxDBServerCouchDBPlugin } from 'rxdb/plugins/server-couchdb';
 addRxPlugin(RxDBServerCouchDBPlugin);
 
-import { RxDBDevModePlugin } from 'rxdb/plugins/dev-mode';
-addRxPlugin(RxDBDevModePlugin);
-
+//import { RxDBDevModePlugin } from 'rxdb/plugins/dev-mode';
+//addRxPlugin(RxDBDevModePlugin);
 
 
 export class Database {

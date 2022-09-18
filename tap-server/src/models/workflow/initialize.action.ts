@@ -5,7 +5,7 @@ import {Context} from "./context.model";
 export class InitializeAction implements IWorkflowAction{
     entryAction(state: { trigger: (arg0: string) => void }, context: Context): void {
         console.log('InitializeAction.entry');
-        state.trigger(TransitionId.CREATE);
+        //state.trigger(TransitionId.CREATE);
 
 
     }

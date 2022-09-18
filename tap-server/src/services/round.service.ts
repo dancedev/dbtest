@@ -62,6 +62,7 @@ export class RoundService {
     }
 
     public startWorkflow() {
+        console.log('START WORKFLOW')
         this.stateMachine.start(this.initialize);
 
         let lastObj: any;
