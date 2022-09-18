@@ -1,12 +1,13 @@
 import {addRxPlugin, createRxDatabase, RxDatabase,} from 'rxdb'
 import pouchdb_adapter_leveldb from "pouchdb-adapter-leveldb";
 import {addPouchPlugin, getRxStoragePouch} from "rxdb/plugins/pouchdb";
-import { RxDBServerPlugin } from 'rxdb/plugins/server';
 import leveldown from 'leveldown';
 
 
 addPouchPlugin(pouchdb_adapter_leveldb); // leveldown adapters need the leveldb plugin to work
-addRxPlugin(RxDBServerPlugin);
+
+import { RxDBServerCouchDBPlugin } from 'rxdb/plugins/server-couchdb';
+addRxPlugin(RxDBServerCouchDBPlugin);
 
 import { RxDBDevModePlugin } from 'rxdb/plugins/dev-mode';
 addRxPlugin(RxDBDevModePlugin);
@@ -18,11 +19,6 @@ export class Database {
     private static db: RxDatabase;
 
     static async createDB(): Promise<RxDatabase> {
-
-        /*await import('rxdb/plugins/dev-mode').then(
-            module => addRxPlugin(module as any)
-        );*/
-
         this.db = await createRxDatabase({
             name: 'data/server-db',
             storage: getRxStoragePouch(leveldown),

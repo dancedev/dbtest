@@ -1,22 +1,22 @@
-import pouchdb_adapter_memory from "pouchdb-adapter-memory";
-import {addRxPlugin, createRxDatabase} from "rxdb";
-import {addPouchPlugin, getRxStoragePouch} from "rxdb/plugins/pouchdb";
+import {createRxDatabase, } from "rxdb";
+import { getRxStoragePouch, addPouchPlugin } from 'rxdb/plugins/pouchdb';
+import { addRxPlugin } from 'rxdb';
 import { RxDBReplicationCouchDBPlugin } from 'rxdb/plugins/replication-couchdb';
+import pouchdb_adapter_http from "pouchdb-adapter-http";
+import pouchdb_adapter_idb from "pouchdb-adapter-idb";
 import { RxDBLeaderElectionPlugin } from 'rxdb/plugins/leader-election';
-import * as PouchHttpPlugin from 'pouchdb-adapter-http';
 
-addPouchPlugin(pouchdb_adapter_memory);
-addPouchPlugin(PouchHttpPlugin);
+addPouchPlugin(pouchdb_adapter_http);
 addRxPlugin(RxDBReplicationCouchDBPlugin);
-addRxPlugin(RxDBLeaderElectionPlugin);
-
+addPouchPlugin(pouchdb_adapter_idb);
+addRxPlugin(RxDBLeaderElectionPlugin)
 
 let dbPromise: any = null
 
 async function _create() {
     const db = await createRxDatabase({
         name: 'clientdb',
-        storage: getRxStoragePouch('memory'),
+        storage: getRxStoragePouch('idb'),
         ignoreDuplicate: true,
     });
 
@@ -44,9 +44,14 @@ async function _create() {
 
     const repState = db.chats.syncCouchDB({
         remote: 'http://localhost:5002/chatdb/chats',
-        options: {
+        waitForLeadership: true,              // (optional) [default=true] to save performance, the sync starts on leader-instance only
+        direction: {                          // direction (optional) to specify sync-directions
+            pull: true, // default=true
+            push: true  // default=true
+        },
+        options: {                             // sync-options (optional) from https://pouchdb.com/api.html#replication
             live: true,
-            retry: true,
+            retry: true
         },
     });
 
@@ -64,4 +69,3 @@ export async function getDb() {
     if (!dbPromise) dbPromise = await _create()
     return dbPromise
 }
-

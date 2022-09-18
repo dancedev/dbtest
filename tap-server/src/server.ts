@@ -10,17 +10,23 @@ async function initialize() {
 
     console.log('create database');
     await Database.createDB().then(async (db) => {
-        const {app} = await db.server({
+        const {app} = await db.serverCouchDB({
             path: 'data',
-            port: 5002,
             cors: true,
+            port: 5002,
             startServer: false,
         });
 
-
         mainApp.use("/chatdb", app);
 
-    }).catch((err) => console.log('error creating server app: ', err));
+    }).catch(() => console.log('error'));
+
+
+    mainApp.use("/import", (req, res) => {
+
+        res.send("importing...")
+    });
+
 
     server = mainApp.listen(5002, () => console.log(`Server listening on port 5002`));
 
